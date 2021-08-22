@@ -160,7 +160,13 @@ Response::SentenceQualityScore LogisticRegressorQualityEstimator::computeSentenc
   const float sentenceScore =
       std::accumulate(std::begin(wordScores), std::end(wordScores), float(0.0)) / wordScores.size();
 
-  return {wordScores, subwordToWords(wordIndexes, target, sentenceIdx), sentenceScore};
+  std::vector<string_view> words;
+
+  for (size_t i = 0; i < target.numWords(sentenceIdx); ++i) {
+    words.push_back(target.word(sentenceIdx, i));
+  }
+
+  return {wordScores, subwordToWords(wordIndexes, target, sentenceIdx), sentenceScore, logProbs, words};
 }
 
 std::vector<float> LogisticRegressorQualityEstimator::predict(const Matrix& features) const {

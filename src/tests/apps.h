@@ -39,6 +39,10 @@ void qualityEstimatorWords(const Ptr<Options>& options);
 // Reads from stdin and translates the read content. Prints the quality scores for each sentence.
 void qualityEstimatorScores(const Ptr<Options>& options);
 
+
+void qualityEstimatorCheck(const Ptr<Options>& options);
+
+
 }  // namespace testapp
 }  // namespace bergamot
 }  // namespace marian

@@ -16,6 +16,8 @@ int main(int argc, char *argv[]) {
     testapp::qualityEstimatorWords(options);
   } else if (mode == std::string("test-quality-estimator-scores")) {
     testapp::qualityEstimatorScores(options);
+  } else if (mode == std::string("test-quality-estimator-check")) {
+    testapp::qualityEstimatorCheck(options);
   } else {
     ABORT("Unknown --mode {}. Please run a valid test", mode);
   }
