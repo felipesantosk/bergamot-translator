@@ -165,7 +165,7 @@ struct AnnotatedText {
   }
 
   /// Returns a string_view representing sentence corresponding to sentenceIdx.
-  string_view sentence(size_t sentenceIdx) const { return asStringView(annotation.sentence(sentenceIdx)); }
+  string_view   sentence(size_t sentenceIdx) const { return asStringView(annotation.sentence(sentenceIdx)); }
 
   /// Returns the string_view of the gap between two sentences in the container.
   ///

@@ -90,26 +90,30 @@ void qualityEstimatorCheck(const Ptr<Options> &options) {
   ResponseOptions responseOptions;
   responseOptions.qualityScores = true;
   const Response response = translateFromStdin(options, responseOptions);
+  
+  std::cout << "[src Sentence]:" << response.source.text << "\n";
+  std::cout << "[tgt Sentence]:" << response.target.text << "\n";
+  
+  std::cout << "[bpe Tokens]:";
 
   for (size_t s = 0; s < response.target.numSentences(); ++s) {
-    std::cout << "################### SENTENCE " << s << " ###################\n";
-    std::cout << "[src Sentence]:" << response.source.sentence(s) << "\n";
-    std::cout << "[tgt Sentence]:" << response.target.sentence(s) << "\n";
 
     const auto &sentenceQualityEstimate = response.qualityScores[s];
-
-    std::cout << "[bpe Tokens]:";
 
     for (size_t i = 0; i < sentenceQualityEstimate.logProbs.size(); ++i) {
       if (!sentenceQualityEstimate.words[i].empty()) {
         std::cout << sentenceQualityEstimate.words[i] << "(" << sentenceQualityEstimate.logProbs[i] << ")";
       }
     }
+  }
 
-    std::cout << "\n";
-
-    std::cout << "[LR sentence Score]:" << sentenceQualityEstimate.sentenceScore << "\n";
-    std::cout << "[LR words Scores]:";
+  std::cout << "\n";
+  
+  std::cout << "[LR words Scores]:";
+  
+  for (size_t s = 0; s < response.target.numSentences(); ++s) {
+    
+    const auto &sentenceQualityEstimate = response.qualityScores[s];
 
     for (size_t i = 0; i < sentenceQualityEstimate.wordScores.size(); ++i) {
       const ByteRange &wordByteRange = sentenceQualityEstimate.wordByteRanges[i];
@@ -118,8 +122,8 @@ void qualityEstimatorCheck(const Ptr<Options> &options) {
 
       std::cout << word << "(" << std::fixed << std::setprecision(3) << wordScore << ") ";
     }
-    std::cout << "\n";
   }
+  std::cout << "\n";
 }
 
 }  // namespace testapp
