@@ -1,13 +1,28 @@
 #include "quality_estimator.h"
 
 namespace marian::bergamot {
+  
+  
+void addAdditionalInformation(const size_t sentenceIndex, Hypothesis& hypothesis, Response& response )
+{
+  auto& lastScore = response.qualityScores.back();
+  lastScore.softAlignment = hypothesis.tracebackAlignment();
+  lastScore.logProbs = hypothesis.tracebackWordScores();
+
+  for (size_t j = 0; j < response.target.numWords(sentenceIndex); ++j) {
+    lastScore.bpeTokens.push_back(response.target.word(sentenceIndex, j));
+  }
+}
 
 void UnsupervisedQualityEstimator::computeQualityScores(const Histories& histories, Response& response) const {
   for (size_t i = 0; i < histories.size(); ++i) {
     const Result result = histories[i]->top();
     const Hypothesis::PtrType& hypothesis = std::get<1>(result);
     const std::vector<float> logProbs = hypothesis->tracebackWordScores();
+      
     response.qualityScores.push_back(std::move(computeSentenceScores(logProbs, response.target, i)));
+    
+    addAdditionalInformation(i, *hypothesis, response );
   }
 }
 
@@ -144,8 +159,10 @@ void LogisticRegressorQualityEstimator::computeQualityScores(const Histories& hi
     const Result result = histories[i]->top();
     const Hypothesis::PtrType& hypothesis = std::get<1>(result);
     const std::vector<float> logProbs = hypothesis->tracebackWordScores();
-
+    
     response.qualityScores.push_back(std::move(computeSentenceScores(logProbs, response.target, i)));
+    
+    addAdditionalInformation(i, *hypothesis, response );
   }
 }
 
@@ -160,13 +177,7 @@ Response::SentenceQualityScore LogisticRegressorQualityEstimator::computeSentenc
   const float sentenceScore =
       std::accumulate(std::begin(wordScores), std::end(wordScores), float(0.0)) / wordScores.size();
 
-  std::vector<string_view> words;
-
-  for (size_t i = 0; i < target.numWords(sentenceIdx); ++i) {
-    words.push_back(target.word(sentenceIdx, i));
-  }
-
-  return {wordScores, subwordToWords(wordIndexes, target, sentenceIdx), sentenceScore, logProbs, words};
+  return {wordScores, subwordToWords(wordIndexes, target, sentenceIdx), sentenceScore};
 }
 
 std::vector<float> LogisticRegressorQualityEstimator::predict(const Matrix& features) const {

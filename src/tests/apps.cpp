@@ -90,29 +90,25 @@ void qualityEstimatorCheck(const Ptr<Options> &options) {
   ResponseOptions responseOptions;
   responseOptions.qualityScores = true;
   const Response response = translateFromStdin(options, responseOptions);
-  
+
   std::cout << "[src Sentence]:" << response.source.text << "\n";
   std::cout << "[tgt Sentence]:" << response.target.text << "\n";
-  
+
   std::cout << "[bpe Tokens]:";
 
   for (size_t s = 0; s < response.target.numSentences(); ++s) {
-
     const auto &sentenceQualityEstimate = response.qualityScores[s];
 
     for (size_t i = 0; i < sentenceQualityEstimate.logProbs.size(); ++i) {
-      if (!sentenceQualityEstimate.words[i].empty()) {
-        std::cout << sentenceQualityEstimate.words[i] << "(" << sentenceQualityEstimate.logProbs[i] << ")";
+      if (!sentenceQualityEstimate.bpeTokens[i].empty()) {
+        std::cout << sentenceQualityEstimate.bpeTokens[i] << "(" << sentenceQualityEstimate.logProbs[i] << ")";
       }
     }
   }
 
-  std::cout << "\n";
-  
-  std::cout << "[LR words Scores]:";
-  
+  std::cout << "\n[QE words Scores]:";
+
   for (size_t s = 0; s < response.target.numSentences(); ++s) {
-    
     const auto &sentenceQualityEstimate = response.qualityScores[s];
 
     for (size_t i = 0; i < sentenceQualityEstimate.wordScores.size(); ++i) {
@@ -120,11 +116,26 @@ void qualityEstimatorCheck(const Ptr<Options> &options) {
       const float wordScore = sentenceQualityEstimate.wordScores[i];
       const string_view word(response.target.text.data() + wordByteRange.begin, wordByteRange.size());
 
-      std::cout << word << "(" << std::fixed << std::setprecision(3) << wordScore << ") ";
+      std::cout << word << "(" << wordScore << ") ";
     }
   }
   std::cout << "\n";
-}
+
+  for (const auto &qualityScore : response.qualityScores )
+  {
+    std::cout << "[AttentionScores]:\n ";
+
+    for (int i = 0; i < qualityScore.softAlignment.size() -1 ; ++i ) {
+      std::cout << qualityScore.bpeTokens[i] << "\t";
+      for (int j = 0; j < qualityScore.softAlignment[i].size() - 1; ++j) {
+        std::cout << qualityScore.softAlignment[i][j] << "\t";
+      }
+
+      std::cout << "\n";
+    }
+  }
+  std::cout << "\n";
+}  // namespace testapp
 
 }  // namespace testapp
 }  // namespace bergamot
