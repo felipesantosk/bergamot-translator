@@ -92,6 +92,13 @@ class TranslationModel {
 
   /// Returns a unique-identifier for the model.
   size_t modelId() const { return modelId_; }
+  
+  
+  Vocabs& getVocabs()
+  {
+    return vocabs_;
+  }
+  
 
  private:
   size_t modelId_;

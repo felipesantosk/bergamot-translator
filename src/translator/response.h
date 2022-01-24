@@ -34,6 +34,11 @@ struct Response {
     std::vector<ByteRange> wordByteRanges;
     /// Whole sentence quality score (it is composed by the mean of its words)
     float sentenceScore = 0.0;
+
+    Words words;
+    std::vector< float > logProbs;
+    std::vector< string_view > bpeTokens;
+    data::SoftAlignment softAlignment;
   };
 
   /// Convenience function to obtain number of units translated. Same as
